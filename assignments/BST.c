@@ -268,24 +268,3 @@ int main() {
     free(t);
     return 0;
 }
-
-// TODO
-
-/*
-
-    - error messages
-    - utilities for printing
-    - add to github
-    - test deletion in multiple cases
-    - print utility for tree
-
-*/
-
-
-// ASSERTIONS
-
-/*
-
-    Is keeping a pointer reference to parent in nodes more efficient than using the parent function?
-
-*/
