@@ -1,0 +1,22 @@
+Binary search trees
+
+	Relevant information is stored in the nodes of a binary search tree.
+	 -> every non-leaf node has a left and right child.
+	 
+	Every node has an unique key, that is used to identify the node.
+	
+	The finding of a node with a particular key must be fast.
+	
+	
+	The keys are distributed in a special way
+	 -> For every node, its key is larger than the keys of the nodes to its left,
+	    and smaller than the keys of the nodes to its right.
+		
+		
+	In OOP, there are two ways of representing leaf nodes
+	
+		- with a single sentinel node Nil, which is also the root's parent
+		- with the NULL pointer
+		
+	
+	

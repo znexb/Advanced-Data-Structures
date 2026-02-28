@@ -1,0 +1,91 @@
+Dynamic sets
+
+	A dynamic set is a collection of objects that may grow, shrink or otherwise
+	change over time.
+	
+		- Objects have fields
+		 - A key is a field that uniquely identifies an object
+		  -> In all implementations of dynamic sets presented in this lecture,
+		     keys are assumed to be totally ordered.
+			 
+		- Operations on a dynamic set are grouped into two categories
+	
+			Queries
+			
+				- which simply return information about the set.
+				
+				Example
+				
+					- SEARCH
+					- MINIMUM
+					- MAXIMUM
+					- SUCCESOR
+					- PREDECESSOR
+					
+			Modifying operations
+			
+				- INSERT
+				- DELETE
+				
+				
+	Operations on a dynamic set S
+	
+		search(S, k)
+		
+			-> returns a pointer p to an element in S such that
+			   p->key = k or Nil if no such element exists
+			   
+		
+		minimum(S)
+		
+			-> returns a pointer p to an element in S whose key is
+			   minimum or Nil if S has no elements
+			   
+			   
+		maximum(S)
+		
+			-> returns a pointer p to an element in S whose key is
+			   maximum or Nil if S has no elements
+			   
+			   
+		successor(S, x)
+		
+			-> returns the next element larger than x in S,
+			   or Nil if x is the maximum element
+			   
+		
+		predecessor(S, x)
+		
+			-> returns the next element smaller than x in S,
+			   or Nil if x is the minimum element
+			   
+			   
+		insert(S, p)
+		
+			-> increase S with the element pointed by p,
+			   or if p is Nil, do nothing
+			   
+			   
+		delete(S, p)
+		
+			-> remove the element pointed by p from S,
+			   or if p is Nil, do nothing
+			   
+			   
+	Implementation issues
+	
+		The complexity of operations of a dynamic set is measured in terms of
+		its size n = number of elements.
+		
+		Different implementations of dynamic sets vary by the runtime complexity
+		of their operations.
+		 -> The choice of an implementation depends on the operations we perform
+		    most often.
+			
+		Typical examples
+		
+			- Binary search trees
+			- Red-Black trees
+			- B-Trees
+			- Binomial heaps
+			- Fibonacci heaps
