@@ -1,0 +1,181 @@
+Red-Black Trees
+
+	Binary tree fields
+	
+		key		value
+		left	pointer
+		right	pointer
+		parent	pointer
+		
+	Red-Black tree fields
+	
+		key		value
+		left	pointer
+		right	pointer
+		color	RED / BLACK
+		
+	
+	Red-Black trees satisfy the following Binary search tree
+	properties
+	
+		- if x is a node with left child y
+		 -> y.key <= x.key
+		 -- idem for right, but y.key >= x.key
+		 
+	For binary-search trees, no memory needs to be allocated for
+	leaf nodes.
+	 - All pointers to a leaf node are assumed to be NIL, which is
+	 0.
+	 
+	For Red-Black trees, it is convenient to represent all leaves
+	with a black sentinel node NIL
+	
+		- The left child, the right child and parent of NIL are
+		NIL
+		
+		- The parent of the root node of a RB tree is assumed to
+		be NIL
+		
+		
+	Properties
+	
+		- Every node is either black or red
+		
+		- The root is black
+		
+		- Every leaf NIL is black
+		
+		- The children of a red node are black
+		
+		- Every path from a node to a descendent leaf contains the
+		same number of black nodes
+		
+		
+	Notions
+	
+		Height - h(n) of a node n 
+		 = number of edges in a longest path from n to a
+		 leaf
+				 
+		Black Height - bh(n) of a node n
+		 = number of black nodes, including Nil, on the path from
+		 n to a leaf, not counting n
+		 
+	
+	Derived properties
+	
+		- bh(n) >= h(n) / 2, for each node n
+		
+		- The subtree rooted at node x contains >= 2^(bh(x)) - 1
+		internal nodes
+		
+		- A red-black tree with n internal nodes has height <=
+		2 log(2)(n + 1)
+		
+		
+	Operations
+	
+		Assumption is that S is an instance of a RBT, which
+		represents a RBsT with n nodes
+		
+			Op				Avg case	Worst case
+			S.search(k)		O(log(2)n)	O(log(2)n)
+			S.minimum()		O(log(2)n)	O(log(2)n)
+			S.maximum() 	O(log(2)n)	O(log(2)n)
+			S.successor		O(log(2)n)	O(log(2)n)
+			S.predecessor	O(log(2)n)	O(log(2)n)
+			
+		These are query operations, implement the same way as 
+		for binary trees.
+		
+		The modifying operations insert and delete must be 
+		redesigned carefully, to gurantee that the newly produced
+		tree has red-black properties!
+		
+			They can also be applied on RBTs with n keys.
+			
+				- Execution time is O(log(2)n)
+				
+				- Can violate the RB properties of the tree
+				 -- inserting
+				 
+					RED NODE   -> may violate property 4
+					BLACK NODE -> may violate property 5
+					
+				 -- deleting
+				 
+					RED NODE   -> does not violate any property
+					BLACK NODE -> may violate properties 2, 4, 5
+					
+				Thus, the RB properties must be restored
+				
+					- Some nodes must change colors
+					
+					- Some pointers must be changed
+				
+				
+		Rotations
+		
+			T.RightRotate(x)
+			
+				- Transforms the configuration of the two nodes
+				on the left into the configuration on the right
+				by changing a constant number of pointers.
+				
+				- The configuration on the right can be transformed
+				into the configuration on the left by the inverse
+				operation T.LeftRotate(x)
+				 -- The two nodes may appear anywhere in a binary
+				 search tree T
+				 -- The letters alpha, beta, gamma represent binary
+				 subtrees
+				 
+				 
+			A rotation operation preserves the inorder ordering of 
+			keys
+			
+				- the keys in alpha precedes x->key, which precede
+				the keys in beta, which precede y->key, which precede
+				the keys in gamma.
+				
+			
+			In implementation, the assumption is that x->right is
+			not Nil for LeftRotate, and x->left is not Nil for 
+			RightRotate.
+			
+			These operations run in O(1) time.
+			
+			
+		Insertion
+		
+			In order to insert a node x in a RBT T with n nodes
+			
+				- Perform insertion of x in T as if T were a BST
+				
+				- Color x to be RED
+				
+				- Adjust the colors of the modified tree by recoloring
+				nodes and performing rotations
+				
+			Insertion ends by coloring the new node z red, 
+			 then it calls InsertFixup, because we could have 
+			 violated some red-black properties.
+			 
+			
+			Analysis
+			
+				- The while loop represents 6 cases, out of which
+				3 are symmetrical, depending on whether z->parent
+				is the left or right son of z->parent->parent,
+				 thus only 3 cases should be considered.
+				 
+				- Case 1 analyzes the color of z->parent->parent->right
+				 -- Line 3 makes y point towards z->parent->parent->right
+				 and we test it on line 4
+				  -> If y is red, then execute case 1
+				  -> Otherwise, execute case 2 or 3
+				 -- For all cases, z->parent->parent is black, for the
+				 reason that z->parent is red
+				  -> Property 3 is violated between z and z->parent
+				  
+				- Case 2 and 3, unless color of z
