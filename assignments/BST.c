@@ -133,6 +133,8 @@ node* parent_node(node *cr, node *nd) {
 
 node* parent(tree bst, node* nd) {
     if(!bst.rt) return NULL;
+
+    if(!nd) return NULL;
     
     if(!search(bst, nd->key)) return NULL;
 
@@ -141,11 +143,12 @@ node* parent(tree bst, node* nd) {
 
 void delete_node() {}
 
-void delete(tree *bst, signed short key, void print_delete(node *p)) {
+void delete(tree *bst, signed short key, void print_delete(node *p), void node_null()) {
     node *n = search(*bst, key);
     node *p = parent(*bst, n);
 
     if(!n) {
+        node_null();
         return; // If the node does not exist, don't bother.
     } else if(!p) {
         return; // Code would crash without a parent
@@ -184,21 +187,41 @@ void search_not_found(signed short key) { printf("ERROR ::: %d NOT FOUND!!!\n", 
 
 void parent_not_found(signed short key) { printf("ERROR ::: PARENT OF %d NOT FOUND!!!\n", key); }
 
+void tree_empty(tree *t) { printf("ERROR ::: Tree %p has no nodes!\n", t); }
+
+void node_null() { printf("ERROR ::: Node does not exist\n"); }
+
 
 // PRINT UTILITIES
 
 void printpd(node *p) { printf("%p ::: %d\n", p, p->key); }
 
-void print_search(tree t, signed short key) {
-    node *n = search(t, key);
+bool print_node(node *n) {
     if(n) {
         printpd(n);
-        return;
-    } 
+        return true;
+    }
+    return false;
+}
+
+void print_search(tree t, signed short key) {
+    node *n = search(t, key);
+    if(print_node(n)) return;
     search_not_found(key);
 }
 
+void print_minimum(tree *t) {
+    node *min = minimum(*t);
+    if(!print_node(min)) { tree_empty(t); return; }
+}
+
+void print_maximum(tree *t) {
+    node *max = maximum(*t);
+    if(!print_node(max)) { tree_empty(t); return; }
+}
+
 void print_parent(tree *t, signed short key) {
+    if(!t->rt) { tree_empty(t); return; }
     node *n = search(*t, key);
     if(n)  {
         node* p = parent(*t, n);
@@ -221,9 +244,6 @@ int main() {
     // node n1 = {3, &n2, NULL};
     // tree rt = {&n1};
 
-    tree *t = malloc(sizeof(tree));
-    t->rt = NULL;
-
     // Legacy manual insertion
 
     // insert(t, 4);
@@ -234,9 +254,21 @@ int main() {
     // insert(t, 2);
     // insert(t, 0);
 
+
+    tree *t = malloc(sizeof(tree));
+    t->rt = NULL;
+
     signed short arr[] = {5, 3, 2, 4};
     size_t n = sizeof(arr) / sizeof(arr[0]); // Memory efficient number of elements of the arr
     arr_insert(t, arr, n);
+
+
+    // An empty tree
+    tree *u = malloc(sizeof(tree));
+    u->rt = NULL;
+
+    signed short _ar[] = {};
+    arr_insert(u, _ar, 0);
 
 
     printf("SEARCH\n");
@@ -247,24 +279,34 @@ int main() {
 
     printf("\n");
     printf("MINIMUM\n");
-    printpd(minimum(*t));
+    print_minimum(t);
+    print_minimum(u); // Case for empty tree
 
 
     printf("\n");
     printf("MAXIMUM\n");
-    printpd(maximum(*t));
+    print_maximum(t);
+    print_maximum(u);
 
 
     printf("\n");
     printf("PARENTs\n");
     print_parent(t, 2);
     print_parent(t, 3);
+    print_parent(t, 10);
+    print_parent(t, 5);
+    print_parent(u, 1);
 
 
     printf("\n");
     printf("DELETION\n");
-    delete(t, 3, print_delete);
+    delete(t, 3, print_delete, node_null);
+    delete(t, 10, print_delete, node_null);
 
     free(t);
+    free(u);
+    
+    printf("\n");
+    printf("SUCCESS!\n");
     return 0;
 }
