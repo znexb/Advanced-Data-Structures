@@ -99,7 +99,6 @@ node* create_node(signed short key) {
     n->rgt = NULL;
     return n;
 }
-//  ! malloc implies free, thus I need a destroy function.
 
 void insert_node(node* ls, bool dir, node *nd, node *nn) {
     if(!nd) { // If the current node is NULL

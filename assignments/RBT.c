@@ -23,6 +23,8 @@ bool search_found(node *n, signed short key) { return n->key == key; }
 // n_key = NODE key, s_key = SEARCHED key
 bool key_sm(signed short n_key, signed short s_key) { return s_key < n_key; }
 
+bool is_tree_null(tree bst) { return !bst.rt; }
+
 node* search_node(node *n, signed short key) {
     if(!n) return NULL;
 
@@ -40,9 +42,71 @@ node* search_node(node *n, signed short key) {
 }
 
 node* search(tree bst, signed short key) {
-    if(bst.rt == NULL) return NULL;
-
+    if(is_tree_null(bst)) return NULL;
     return search_node(bst.rt, key);
+}
+
+
+// Minimum & Maximum
+
+node* max(node *n) {
+    if(n->rgt) return max(n->rgt);
+    return n;
+}
+
+node* min(node *n) {
+    if(n->lft) return min(n->lft);
+    return n;
+}
+
+node* minmax(tree t, bool which) { // max == true & min == false
+    if(is_tree_null(t)) return NULL;
+    if(which) { return max(t.rt); }
+    return min(t.rt);
+}
+
+
+// Insert
+
+tree* create_tree(node *rt) {
+    tree *t = malloc(sizeof(tree));
+    if(!t) { perror("malloc"); return NULL; }
+    t->rt = rt;
+    return t;
+}
+
+node* create_node(signed short key) {
+    node *n = malloc(sizeof(node));
+    if(!n) { perror("malloc"); return NULL; }
+    n->key = key;
+    n->lft = NULL;
+    n->rgt = NULL;
+    n->col = true; // Red by default makes it insert friendly
+}
+
+void node_exists() { printf("Node already exists!\n"); }
+
+void insert_node(node* p, bool dir, node *c, node *n) {
+    if(!c) {
+        if(!dir) p->lft = n;
+        else     p->rgt = n;
+        return;
+    }
+    signed short c_key = c->key;
+    signed short n_key = n->key;
+    if(key_sm(c_key, n_key)) insert_node(c, false, c->lft, n);
+    else                     insert_node(c, true , c->rgt, n);
+} // p = Parent node, dir : false = left, true  = right, c = Current node, n = Newly added node
+
+void insert_fixup() // TBC
+
+void insert(tree *t, signed short key) {
+    // Binary search tree insertion + Red coloring
+    if(search(*t, key)) { node_exists(); return; }
+    node *n = create_node(key);
+    if(!t->rt) t->rt = n;
+    else       insert_node(NULL, true, t->rt, n);
+    // Fixup
 }
 
 
@@ -65,6 +129,20 @@ void print_search(tree t, signed short key) {
     printn_null();
 }
 
+void print_n_search(tree t, signed short *keys, size_t n) {
+    signed short *it = keys;
+    for(; it < keys + n; ++it) { print_search(t, *it); }
+}
+
+void print_minmax(tree t) {
+    printf("Minimum ::: ");
+    printn(minmax(t, false));
+    printf("Maximum ::: ");
+    printn(minmax(t, true));
+} 
+
+
+void header(char* s) { printf("%s", s); }
 
 void endl() { printf("\n"); }
 
@@ -80,9 +158,15 @@ int main() {
     node n1 = {100, &n2, &n6, false};
     tree rbt = {&n1};
 
-    printf("Search\n");
-    print_search(rbt, 150);
-
+    header("Search\n");
+    signed short keys[] = {150, 110};
+    size_t n = sizeof(keys) / sizeof(keys[0]);
+    print_n_search(rbt, keys, n);
     endl();
+    
+    header("Minimum & Maximum\n");
+    print_minmax(rbt);
+    endl();
+
     printf("Success!\n");
 }
