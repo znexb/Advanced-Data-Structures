@@ -19,4 +19,24 @@ Binary search trees
 		- with the NULL pointer
 		
 	
+	Time complexity of operations
 	
+		Operation S.___		Average case	Worst case
+		
+		search				O(log(2)(n))	O(n)
+		minimum				O(log(2)(n))	O(n)
+		maximum				O(log(2)(n))	O(n)
+		successor			O(log(2)(n))	O(n)
+		predecessor			O(log(2)(n))	O(n)
+		insert				O(log(2)(n))	O(n)
+		delete				O(log(2)(n))	O(n)
+		
+		The average case time complexity is O(log(n)) for 
+		all operations.
+		
+		Worst case time complexity is O(n) for all operations.
+		
+		
+		Could the worst case time complexity of BST be improved?
+		
+			Yes, using Red-Black trees.

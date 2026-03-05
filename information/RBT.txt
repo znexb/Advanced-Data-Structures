@@ -178,4 +178,76 @@ Red-Black Trees
 				 reason that z->parent is red
 				  -> Property 3 is violated between z and z->parent
 				  
-				- Case 2 and 3, unless color of z
+				- Case 2 and 3, uncle's color of z, y, is black
+				 -- The two cases can be distinguished as follows
+				 
+					Z is a right son or left son of z->parent
+					
+					We do a left rotation, transforming case 3,
+					where z is left son.
+					
+				 -- Regardless of how we get into case 2, the uncle
+				 of z, y, is black
+				  -- Otherwise, we would be in case 1.
+				 
+				 -- We change the colors and do a right rotation,
+				 hence property 4 will hold
+				 
+				 -- This operation leads to the completion of the 
+				 execution, because z->parent is black now
+				 
+			
+			The execution time of RBInsert(x) operation is 
+			O(log(2)(n)), where n is the number of nodes from the 
+			Red-Black tree T.
+			
+			
+		Deletion
+		
+			RBDelete(x) is a subtle adjustment of the deletion 
+			procedure for the BST.
+			
+			After splicing out a node, it calls an auxiliary procedure,
+			RBDeleteFixup, that changes colors and performs rotations
+			to restore the red-black properties.
+			
+			
+			Analysis
+			
+				The only case that can cause a loop is case number 2.
+				
+					- Case 1 is transformed into cases 2, 3 or 4 by 
+					exchanging the colors of nodes B and D and performing
+					a left rotation.
+					
+					- In case 2, the extra black represented by the pointer
+					x is moved up the tree by coloring node D red and setting
+					x to point to B.
+					 -- If case 2 is realized by case 1, the while loop terminates
+					 because color c is red.
+					 
+					- Case 3 is transformed into case 4 by exchanging the colors 
+					of the nodes C and D and by performing a right rotation.
+					
+					- In case 4, the extra black represented by x can be removed
+					by changing some colors and performing a left rotation.
+					
+			
+			Complexity
+			
+				The height of the RB-tree is O(log(2)(n))
+				 -> the total cost of the procedure without the call to
+				 RBDeleteFixup cost is O(log(2)(n)).
+				 
+				With the call to RBDF, cases 1, 3 and 4 each terminate
+				after a constant number of color changes and less than 
+				3 rotations.
+				
+				Case 2 is the only case with a loop.
+				 -- The pointer x moves upward at most O(log(2)(n)) times
+				 -- No rotations are performed
+				 -> RBF takes O(log(2)(n)) time and performs at most 3
+				 rotations
+				 
+				Hence, the total execution time for RBDelete(x) is also 
+				O(log(2)(n)).

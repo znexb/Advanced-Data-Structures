@@ -32,6 +32,8 @@ bool key_gt(signed short node_key, signed short key) {
 }
 
 
+// Search
+
 node* search_node(node *nd, signed short key) {
     if(!nd) return NULL; // NULL node case
 
@@ -54,6 +56,8 @@ node* search(tree bst, signed short key) {
     return search_node(bst.rt, key); // Search node by node, recursively.
 }
 
+
+// Minimum & Maximum
 
 node* minimum_node(node *nd) {
     if(!nd) return NULL; // NULL node case
@@ -81,6 +85,8 @@ node* maximum(tree bst) {
     return maximum_node(bst.rt);
 }
 
+
+// Insert
 
 node* create_node(signed short key) {
     node* n = malloc(sizeof(node));
@@ -122,6 +128,8 @@ void arr_insert(tree *bst, signed short *arr, size_t n) {
     for(; it < arr + n; ++it) { insert(bst, *it); }
 }
 
+
+// Delete
 
 node* parent_node(node *cr, node *nd) {
     if(cr->lft == nd || cr->rgt == nd) return cr;
