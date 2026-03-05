@@ -25,25 +25,25 @@ bool key_sm(signed short n_key, signed short s_key) { return s_key < n_key; }
 
 bool is_tree_null(tree bst) { return !bst.rt; }
 
-node* search_node(node *n, signed short key) {
+node* search_node(node *n, signed short key, node *p, bool parent) {
     if(!n) return NULL;
 
-    if(search_found(n, key)) return n;
+    if(search_found(n, key)) return parent ? p : n;
     else {
         signed short cur = n->key;
         if(key_sm(cur, key)) {
-            if(n->lft) return search_node(n->lft, key);
+            if(n->lft) return search_node(n->lft, key, n, parent);
             else       return NULL;
         } else { // Implied else is key >= cur. The case key == cur can never occur because of the search_found check. Thus, we are left with key > cur.
-            if(n->rgt) return search_node(n->rgt, key);
+            if(n->rgt) return search_node(n->rgt, key, n, parent);
             else       return NULL;
         }
     }
 }
 
-node* search(tree bst, signed short key) {
+node* search(tree bst, signed short key, bool parent) {
     if(is_tree_null(bst)) return NULL;
-    return search_node(bst.rt, key);
+    return search_node(bst.rt, key, NULL, parent);
 }
 
 
@@ -98,15 +98,36 @@ void insert_node(node* p, bool dir, node *c, node *n) {
     else                     insert_node(c, true , c->rgt, n);
 } // p = Parent node, dir : false = left, true  = right, c = Current node, n = Newly added node
 
-void insert_fixup() // TBC
+void insert_fixup(tree *t, signed short key) {
+    node *p = search(*t, key, true); // Parent
+    node *g = search(*t, p->key, true); // Grandparent
+    node *u = p == g->lft ? g->rgt : g->lft;  // Uncle
+    while(p->col) { // While parent's color is red
+        if(u->col) { // Uncle color is red
+            p->col = false;
+            u->col = false;
+            g->col = true;
+        } else {
+            if(p->rgt->key == key) {
+                // rotate_left(); // TBC
+            }
+            if(p->lft->key == key) {
+                p->col = false;
+                g->col = true;
+                // rotate_right(); // TBC
+            }
+        }
+    }
+    insert_fixup(t, p->key);
+}
 
 void insert(tree *t, signed short key) {
     // Binary search tree insertion + Red coloring
-    if(search(*t, key)) { node_exists(); return; }
+    if(search(*t, key, false)) { node_exists(); return; }
     node *n = create_node(key);
     if(!t->rt) t->rt = n;
     else       insert_node(NULL, true, t->rt, n);
-    // Fixup
+    insert_fixup(t, key);
 }
 
 
@@ -124,15 +145,21 @@ void printn_null() { printf("ERROR ::: Node is null!\n"); }
 // Trashed this version because: v2 avoids unnecessary 'else' + v2 keeps control flow flatter + v2 scales better in larger functions
 
 void print_search(tree t, signed short key) {
-    node *n = search(t, key);
+    node *n = search(t, key, false);
     if(n) { printn(n); return; }
     printn_null();
 }
 
-void print_n_search(tree t, signed short *keys, size_t n) {
-    signed short *it = keys;
-    for(; it < keys + n; ++it) { print_search(t, *it); }
+void print_parent(tree t, signed short key) {
+    node *n = search(t, key, true);
+    if(n) { printn(n); return; }
+    printn_null();
 }
+
+void print_n_objects(tree t, signed short *keys, size_t n, void print_object(tree t, signed short key)) {
+    signed short *it = keys;
+    for(; it < keys + n; ++it) { print_object(t, *it); }
+} // Proto Java interface type function
 
 void print_minmax(tree t) {
     printf("Minimum ::: ");
@@ -161,7 +188,13 @@ int main() {
     header("Search\n");
     signed short keys[] = {150, 110};
     size_t n = sizeof(keys) / sizeof(keys[0]);
-    print_n_search(rbt, keys, n);
+    print_n_objects(rbt, keys, n, print_search);
+    endl();
+
+    header("Parents\n"); // This was not required by assignment, but here we are
+    signed short keys_p[] = {150, 100, 21};
+    size_t n_p = sizeof(keys_p) / sizeof(keys_p[0]);
+    print_n_objects(rbt, keys_p, n_p, print_parent);
     endl();
     
     header("Minimum & Maximum\n");
