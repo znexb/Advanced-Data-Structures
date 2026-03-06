@@ -8,6 +8,7 @@ typedef struct node {
     signed short key;
     struct node *lft;
     struct node *rgt;
+    struct node *pnt;
     bool col; // Bool with the following specification: RED == TRUE & BLACK == FALSE;
 } node;
 
@@ -97,6 +98,21 @@ void insert_node(node* p, bool dir, node *c, node *n) {
     if(key_sm(c_key, n_key)) insert_node(c, false, c->lft, n);
     else                     insert_node(c, true , c->rgt, n);
 } // p = Parent node, dir : false = left, true  = right, c = Current node, n = Newly added node
+
+void rotate_left(tree *t, node *n) {
+    node *c = n->rgt;
+    if(!c) return;
+    n->rgt = c->lft;
+    if(c->lft != t->rt) c->lft = n;
+    node *n_p = search(*t, n->key, true);
+    node *c_p = search(*t, c->key, true);
+    c_p = n_p;
+    if(n_p == t->rt)       t->rt = c;
+    else if(n == n_p->lft) n_p->lft = c;
+    else                   n_p->rgt = c;
+    c->rgt = n;
+    n_p = c;
+}
 
 void insert_fixup(tree *t, signed short key) {
     node *p = search(*t, key, true); // Parent
