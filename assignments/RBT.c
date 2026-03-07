@@ -180,7 +180,50 @@ void insert_n (tree *t, signed short *keys, size_t n) {
 
 // Delete
 
+node* successor (node *n) {
+    if (n->rgt) return min (n->rgt);
+    node *p = n->pnt;
+    while (p && n == p->rgt) { n = p; p = p->pnt; }
+    return p;
+}
 
+void delete_fixup (tree *t, node *n, node *g) {
+    while (n != t->rt && !n->col) { // !col = BLACK
+        node *s;                    // Sibling
+        if (n == g->lft) {
+            s = 1; // TBC
+        }
+    }
+}
+
+node* delete (tree *t, node *n) {
+    node *p, *c;                                      // p = successor; c = child
+    if (!n->lft || !n->rgt)    p = n;                 // If node has less than one or one child, do 'easy' delete
+    else                       p = successor (n);     // If node has two children
+    if (p->lft)                c = p->lft;
+    else                       c = p->rgt;
+    if (c)                     c->pnt = p->pnt;
+    if (!p->pnt)               t->rt = c;
+    else if (p == p->pnt->lft) p->pnt->lft = c;
+    else                       p->pnt->rgt = c;
+    if (p != n)                n->key = p->key;
+    if (!p->col) delete_fixup (t, c, p->pnt);
+    return p;
+}
+
+node* del (tree *t, node *n) {
+    node *p, *c;
+    if (!n->lft || !n->rgt)    p = n;
+    else                       p = successor (n);
+    if (p->lft)                c = p->lft;
+    else                       c = p->rgt;
+    if (c)                     c->pnt = p->pnt;
+    if (!p->pnt)               t->rt = c;
+    else if (p == p->pnt->lft) p->pnt->lft = c;
+    else                       p->pnt->rgt = c;
+    if (p != n)                n->key = p->key;
+    return p;
+}
 
 
 // Print
