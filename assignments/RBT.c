@@ -34,10 +34,10 @@ node* search_node (node *n, signed short key) {
         signed short cur = n->key;
         if( key_sm (cur, key) ) {
             if (n->lft) return search_node (n->lft, key);
-            else       return NULL;
+            else        return NULL;
         } else { // Implied else is key >= cur. The case key == cur can never occur because of the search_found check. Thus, we are left with key > cur.
             if (n->rgt) return search_node (n->rgt, key);
-            else       return NULL;
+            else        return NULL;
         }
     }
 }
@@ -172,10 +172,20 @@ void insert (tree *t, signed short key) {
     insert_fixup (t, n); // TBD
 }
 
+void insert_n (tree *t, signed short *keys, size_t n) {
+    signed short *it = keys;
+    for(; it < keys + n; ++it) { insert(t, *it); }
+}
+
+
+// Delete
+
+
+
 
 // Print
 
-void printn (node *n) { printf ("%p = %d\n", n, n->key); }
+void printn (node *n) { if(!n) return; printf ("%p = %d\n", n, n->key); }
 
 void printn_null () { printf ("ERROR ::: Node is null!\n"); }
 
@@ -192,16 +202,31 @@ void print_search (tree t, signed short key) {
     printn_null ();
 }
 
-void print_parent (tree t, signed short key) {
+// The function below is not strictly necessary, keeping it because it does not bother me.
+void print_parent_key (tree t, signed short key) { // Print parent of a node based on knowing the key
     node *n = search (t, key);
     if (n) { printn (n); return; }
     printn_null ();
 }
 
+void print_parent (node *n) {
+    if(n) { printn (n); return; }
+    printn_null ();
+}
+
 void print_n_objects (tree t, signed short *keys, size_t n, void print_object(tree t, signed short key)) {
     signed short *it = keys;
-    for(; it < keys + n; ++it) { print_object (t, *it); }
+    for (; it < keys + n; ++it) { print_object (t, *it); }
 } // Proto Java interface type function
+
+// This might be overly complex, but I implemented it for C experimentation purposes.
+void print_n_objects_deref (tree t, node *nodes, size_t n, void print_object(tree t, signed short key)) {
+    node *it = nodes;
+    signed short keys[n];
+    size_t i = 0;
+    for (; it < nodes + n; ++it) { keys [i] = it->key; ++i; }
+    print_n_objects (t, keys, n, print_object);
+}
 
 void print_minmax (tree t) {
     printf ("Minimum ::: ");
@@ -217,38 +242,39 @@ void endl () { printf ("\n"); }
 
 int main () {
     // RBT_sample.jpg
-    node n8 = {150, NULL, NULL, NULL, true};
-    node n7 = {110, NULL, NULL, NULL, true};
-    node n6 = {145, &n7, &n8, NULL, false};
-    node n5 = {76, NULL, NULL, NULL, false};
-    node n4 = {32, NULL, NULL, NULL, true};
-    node n3 = {21, NULL, &n4, NULL, false};
-    node n2 = {60, &n3, &n5, NULL, true};
-    node n1 = {100, &n2, &n6, NULL, false};
-    n2.pnt = &n1;
-    n3.pnt = &n2;
-    n4.pnt = &n3;
-    n5.pnt = &n2;
-    n6.pnt = &n1;
-    n7.pnt = &n6;
-    n8.pnt = &n6;
-    tree rbt = {&n1};
+    // node n8 = {150, NULL, NULL, NULL, true};
+    // node n7 = {110, NULL, NULL, NULL, true};
+    // node n6 = {145, &n7, &n8, NULL, false};
+    // node n5 = {76, NULL, NULL, NULL, false};
+    // node n4 = {32, NULL, NULL, NULL, true};
+    // node n3 = {21, NULL, &n4, NULL, false};
+    // node n2 = {60, &n3, &n5, NULL, true};
+    // node n1 = {100, &n2, &n6, NULL, false};
+    // n2.pnt = &n1;
+    // n3.pnt = &n2;
+    // n4.pnt = &n3;
+    // n5.pnt = &n2;
+    // n6.pnt = &n1;
+    // n7.pnt = &n6;
+    // n8.pnt = &n6;
+    // tree rbt = {&n1};
 
-    tree rb2 = {NULL};
-    insert (&rb2, 100);
+    tree rbt = {NULL};
+    signed short keys [] = {100, 60, 21, 32, 76, 145, 110, 150};
+    size_t n = sizeof (keys) / sizeof (keys[0]);
+    insert_n(&rbt, keys, n);
 
     header ("Search\n");
-    signed short keys[] = {150, 110};
-    size_t n = sizeof (keys) / sizeof (keys[0]);
-    // print_n_objects (rbt, keys, n, print_search);
-    print_search (rb2, 100);
+    signed short keys_s [] = {150, 110};
+    size_t n_s = sizeof (keys_s) / sizeof (keys_s [0]);
+    print_n_objects (rbt, keys, n_s, print_search);
     endl ();
 
-    header ("Parents\n"); // This was not required by assignment, but here we are
-    signed short keys_p[] = {150, 100, 21};
-    size_t n_p = sizeof (keys_p) / sizeof (keys_p[0]);
-    print_n_objects (rbt, keys_p, n_p, print_parent);
-    endl ();
+    // header ("Parents\n"); // This was not required by assignment, but here we are
+    // node keys_p[] = {n8, n6};
+    // size_t n_p = sizeof (keys_p) / sizeof (keys_p[0]);
+    // print_n_objects_deref (rbt, keys_p, n_p, print_parent_key);
+    // endl ();
     
     header ("Minimum & Maximum\n");
     print_minmax (rbt);
