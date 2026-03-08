@@ -357,15 +357,16 @@ int main () {
     // n8.pnt = &n6;
     // tree rbt = {&n1};
 
-    tree rbt = {NULL};
+    tree *rbt = malloc(sizeof(tree));
+    rbt->rt = NULL;
     signed short keys [] = {100, 60, 21, 32, 76, 145, 110, 150};
     size_t n = sizeof (keys) / sizeof (keys[0]);
-    insert_n(&rbt, keys, n);
+    insert_n(rbt, keys, n);
 
     header ("Search\n");
     signed short keys_s [] = {150, 110};
     size_t n_s = sizeof (keys_s) / sizeof (keys_s [0]);
-    print_n_objects (rbt, keys, n_s, print_search);
+    print_n_objects (*rbt, keys, n_s, print_search);
     endl ();
 
     // header ("Parents\n"); // This was not required by assignment, but here we are
@@ -375,16 +376,17 @@ int main () {
     // endl ();
     
     header ("Minimum & Maximum\n");
-    print_minmax (rbt);
+    print_minmax (*rbt);
     endl ();
 
     header ("Deletion test\n");
-    insert(&rbt, 23);
-    print_search(rbt, 23);
-    node *d = search(rbt, 23);
-    delete(&rbt, d);
-    print_search(rbt, 23);
+    insert(rbt, 23);
+    print_search(*rbt, 23);
+    node *d = search(*rbt, 23);
+    delete(rbt, d);
+    print_search(*rbt, 23);
     endl();
 
+    free(rbt);
     printf ("Success!\n");
 }
