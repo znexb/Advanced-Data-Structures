@@ -1,5 +1,4 @@
 # TODO
 
-- ! DELETE
-- optional parser to check differences between trees
-- printer
+- add more tests to insertion and deletion
+- finish comparison function!

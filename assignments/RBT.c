@@ -331,7 +331,47 @@ void print_minmax (tree t) {
     printn (minmax(t, false));
     printf ("Maximum ::: ");
     printn (minmax(t, true));
-} 
+}
+
+
+// Extras
+
+void parse_node (node *n, node **nodes, size_t *size) {
+    if(n) { 
+        (*nodes) [*size - 1] = *n; 
+        ++*size; 
+        *nodes = realloc (*nodes, *size * sizeof (node));
+    }
+    if(n->lft) parse_node (n->lft, nodes, size);
+    if(n->rgt) parse_node (n->rgt, nodes, size);
+}
+
+void parse_tree (tree t, node **nodes, size_t *size) {
+    if (!t.rt) return;                          // Null tree case
+    parse_node (t.rt, nodes, size);
+}
+
+bool compare_heaps (node *h1, node *h2) {
+    if (h1->key != h2->key) return false;
+    node *it1 = 1 + h1;
+    node *it2 = 1 + h2;
+    while (it1 && it2) { if (it1 != it2) return false; }
+    return true;
+}
+
+void compare_trees(tree t1, tree t2) {
+    if (!t1.rt || !t2.rt) return;           // If any of the trees are empty
+    unsigned short right_differences = 0;   // Difference metrics
+    unsigned short left_differences = 0;
+    node *nodes1 = malloc(1 * sizeof (node));    // At least one node because root is not empty
+    size_t size1 = 1;                               // Size of nodes[]
+    node *nodes2 = malloc(1 * sizeof (node));
+    size_t size2 = 1;
+    parse_tree(t1, &nodes1, &size1);
+    parse_tree(t1, &nodes2, &size2);
+    if (compare_heaps (nodes1, nodes2)) { printf("Equal"); return; }
+    printf("Unequal");
+}
 
 
 void header (char* s) { printf ("%s", s); }
@@ -361,7 +401,7 @@ int main () {
     rbt->rt = NULL;
     signed short keys [] = {100, 60, 21, 32, 76, 145, 110, 150};
     size_t n = sizeof (keys) / sizeof (keys[0]);
-    insert_n(rbt, keys, n);
+    insert_n (rbt, keys, n);
 
     header ("Search\n");
     signed short keys_s [] = {150, 110};
@@ -386,6 +426,17 @@ int main () {
     delete(rbt, d);
     print_search(*rbt, 23);
     endl();
+
+    header ("Parser tests\n");
+    node *nodes = malloc(1 * sizeof (node));
+    size_t nodes_size = 1;
+    parse_tree (*rbt, &nodes, &n);
+    free (nodes);
+    endl ();
+
+    // header ("Comparison tests\n"); It does not work properly, but the foundation is set!
+    // compare_trees(*rbt, *rbt);
+    // endl ();
 
     free(rbt);
     printf ("Success!\n");
