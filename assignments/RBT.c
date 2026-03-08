@@ -180,30 +180,84 @@ void insert_n (tree *t, signed short *keys, size_t n) {
 
 // Delete
 
-node* successor (node *n) {
-    if (n->rgt) return min (n->rgt);
-    node *p = n->pnt;
-    while (p && n == p->rgt) { n = p; p = p->pnt; }
-    return p;
+node* successor (node *n) { // Node n is the node whose successor is searched for.
+    // Let node n = "successed node" = 'sn'
+    if (n->rgt) return min (n->rgt);                // If sn's right child exists, return the minimum of the subtree with root at that.
+    node *p = n->pnt;                               // Let node p be the parent of sn.
+    while (p && n == p->rgt) { n = p; p = p->pnt; } // While a parent exists AND sn is on the right-side of the previous parent, THEN set sn as the parent AND update the parent.
+    return p;                                       // Return the previous parent. This avoids a NULL case.
 }
 
-void delete_fixup (tree *t, node *n, node *g) {
-    while (n != t->rt && !n->col) { // !col = BLACK
-        node *s;                    // Sibling
-        if (n == g->lft) {
-            s = 1; // TBC
+void delete_fixup (tree *t, node *n, node *g) { // Node n is the node to be fixed up and g is a local-copy node which holds the successor's parent.
+    node *p, *s;
+    while (n != t->rt && !n->col) { // If the node to be fixed up is not the root of the tree AND its color IS black. Let the fixed up node = 'fun'
+        p = n ? n->pnt : g;
+        if (n == p->lft) {     // If 'fun' is a left child of its parent
+            s = p->rgt;        // Then the node's sibling is on the right side of fun's parent.
+            // Case 1 : Transforms the og situation ("RBT-delete_fixup-Case1.jpg") such that the sibling becomes black, allowing the algorithm to move to cases 2, 3, 4.
+            if (s->col) {                   // If the color of the sibling is RED
+                s->col = false;             // Then color it BLACK.
+                p->col = true;         // Color the parent RED, as per RBT coloring rules.
+                rotate_left (t, p);    // Rotate the parent to the left.
+                s = p->rgt;            // Update the sibling to be on n's new parent's right-side.
+            }
+            // Case 2 : RBT-delete_fixup-Case2.jpg : Moves the double black upward, thus the subtree black-height becomes balanced, but the parent might now be double black, thus the loop is repeated.
+            if (!s->lft->col && !s->rgt->col) {  // If the color of both children of the new sibling are BLACK
+                s->col = true;                   // Color the sibling RED.
+                n = p;                      // Set the 'fun' node to its parent.
+            } else {
+                // Case 3 : RBT-delete_fixup-Case3.jpg : Converts the tree into case 4, as this is a prep step.
+                if (!s->rgt->col) {  // If only its right child is BLACK.
+                    s->lft->col = false;    // Color its rch BLACK.
+                    s->col = true;          // And color it RED.
+                    rotate_right (t, s);    // Rotate the sibling to the right.
+                    s = p->rgt;        // Update the sibling to fun's parent's right child.
+                }
+                // Case 4 : RBT-delete_fixup-Case4.jpg : This resolves the double black and terminates the algorithm.
+                s->col = p->col;       // Color consistency between the sibling and fun.
+                p->col = false;        // Color fun's parent BLACK.
+                s->rgt->col = false;   // Color sibling's right child BLACK.
+                rotate_left (t, p);    // Rotate the parent of fun to the left.
+                n = t->rt;             // Updated fun to be the tree's root.
+            }
+        } else { // Perfect mirror image
+            s = p->lft; 
+            if (s->col) { // Case 1
+                s->col = false;
+                p->col = true;
+                rotate_right (t, p);
+                s = p->lft;
+            }
+            if (!s->rgt->col && !s->lft->col) { // Case 2
+                s->col = true;
+                n = p;
+            } else {
+                if (!s->lft->col) { // Case 3
+                    s->rgt->col = false;
+                    s->col = true;
+                    rotate_left (t, s);
+                    s = p->lft;
+                }
+                // Case 4
+                s->col = p->col;
+                p->col = false;
+                s->lft->col = false;
+                rotate_right(t, p);
+                n = t->rt;  // Updated fun to be the tree's root.
+            }
         }
     }
+    n->col = false;
 }
 
 node* delete (tree *t, node *n) {
     node *p, *c;                                      // p = successor; c = child
     if (!n->lft || !n->rgt)    p = n;                 // If node has less than one or one child, do 'easy' delete
     else                       p = successor (n);     //    Else if node has two children, find successor
-    if (p->lft)                c = p->lft;            // If child is on the left side of successor, acknowledge
+    if (p->lft)                c = p->lft;            // If child is on the left side of successor, acknowledge. This set of ifs updates the connection successor ->ch child
     else                       c = p->rgt;            //    Else right-side child, idem
-    if (c)                     c->pnt = p->pnt;       // If a child indeed exists, the parent of it becomes the parent of the successor
-    if (!p->pnt)               t->rt = c;             // If the successor has no parent, then the root must be set as the child
+    if (c)                     c->pnt = p->pnt;       // If a child indeed exists, the parent of it becomes the parent of the successor. This if updates the connection child ->pt successor 
+    if (!p->pnt)               t->rt = c;             // If the successor has no parent, then the root must be set as the child. This if set updates the successor's parent ->ch connection to the child.
     else if (p == p->pnt->lft) p->pnt->lft = c;       //    Else if the successor is its parent's left child, set the parent's left child as the child
     else                       p->pnt->rgt = c;       //    Else (if the successor is its parent's right child), idem but right-wise
     if (p != n)                n->key = p->key;       // If the successor is not equal to the node, as per the 'easy' delete case, exchange information. In this case, I only have a key for my RBT implementation
@@ -211,19 +265,20 @@ node* delete (tree *t, node *n) {
     return p;                                         // Return the successor of the node. In 'safe' delete, it is the deleted node itself.
 }
 
-node* del (tree *t, node *n) {
-    node *p, *c;                                  // p = successor, c = child
-    if (!n->lft || !n->rgt)    p = n;             // If the node to be del'd has only one child or zero childre, successor is the node itself. Let this be called "easy delete".
-    else                       p = successor (n); //    Else, find successor of n through the algorithm
-    if (p->lft)                c = p->lft;        // If the successor has a left child, set the child
-    else                       c = p->rgt;        //    Else right-side
-    if (c)                     c->pnt = p->pnt;   // If the child exists, then set the parent of the child as the successor's child
-    if (!p->pnt)               t->rt = c;         // If the successor has no parent, set the root as the child
-    else if (p == p->pnt->lft) p->pnt->lft = c;   //    Else if the successor is its parent's left child, set that as the child
-    else                       p->pnt->rgt = c;   //    Else (right-side), idem for right-side
-    if (p != n)                n->key = p->key;   // If the successor is not the del'd node, transfer information
-    return p;                                     // Return the successor
-}
+// Below is the delete function for BST. I implemented it because I saw it in the lecture notes, only then to realize that this is just the BST deletion and it was showcased only for comparison purposes.
+// node* del (tree *t, node *n) {
+//     node *p, *c;                                  // p = successor, c = child
+//     if (!n->lft || !n->rgt)    p = n;             // If the node to be del'd has only one child or zero childre, successor is the node itself. Let this be called "easy delete".
+//     else                       p = successor (n); //    Else, find successor of n through the algorithm
+//     if (p->lft)                c = p->lft;        // If the successor has a left child, set the child
+//     else                       c = p->rgt;        //    Else right-side
+//     if (c)                     c->pnt = p->pnt;   // If the child exists, then set the parent of the child as the successor's child
+//     if (!p->pnt)               t->rt = c;         // If the successor has no parent, set the root as the child
+//     else if (p == p->pnt->lft) p->pnt->lft = c;   //    Else if the successor is its parent's left child, set that as the child
+//     else                       p->pnt->rgt = c;   //    Else (right-side), idem for right-side
+//     if (p != n)                n->key = p->key;   // If the successor is not the del'd node, transfer information
+//     return p;                                     // Return the successor
+// }
 
 
 // Print
@@ -322,6 +377,14 @@ int main () {
     header ("Minimum & Maximum\n");
     print_minmax (rbt);
     endl ();
+
+    header ("Deletion test\n");
+    insert(&rbt, 23);
+    print_search(rbt, 23);
+    node *d = search(rbt, 23);
+    delete(&rbt, d);
+    print_search(rbt, 23);
+    endl();
 
     printf ("Success!\n");
 }
