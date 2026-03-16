@@ -91,7 +91,7 @@ void node_exists () { printf ("Node already exists!\n"); }
 void insert_node (node* p, bool dir, node *c, node *n) {
     if (!c) {
         if (!dir) p->lft = n;
-        else     p->rgt = n;
+        else      p->rgt = n;
         n->pnt = p;
         return;
     }
