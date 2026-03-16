@@ -5,56 +5,8 @@
 #include <string.h>
 
 #include "RBT.h"
+#include "player_list.h"
 
-
-typedef struct player_list {
-    signed short index;
-    char **names;
-    signed short *scores;
-} player_list;
-
-player_list* create_player_list() {
-    player_list *pl = malloc (sizeof(player_list));
-    if (!pl) { perror("malloc"); return NULL; }
-    pl->index = 0;
-    pl->names = malloc (16 * sizeof(char*));
-    if (!pl->names) { perror("malloc"); free(pl); return NULL; }
-    for (int i = 0; i < 16; i++) {
-        pl->names[i] = malloc(16 * sizeof(char));
-        if (!pl->names[i]) { 
-            perror("malloc"); 
-            for(int j = 0; j < 16; j++) free(pl->names[j]);
-            free(pl->names);
-            free(pl);
-            return NULL; 
-        }
-    }
-    pl->scores = malloc (16 * sizeof(signed short));
-    if (!pl->scores) { 
-        perror("malloc"); 
-        for(int i = 0; i < 16; i++) free(pl->names[i]);
-        free(pl->names);
-        free(pl);
-        return NULL; 
-    }
-    return pl;
-}
-// Honestly, I do not know why I bothered with manual malloc for each element. I guess I like pointless hard work. *POINTERless* work especially, haha
-
-void free_player_list(player_list *pl) {
-    if (!pl) return;
-    if (pl->names) {
-        for (int i = 0; i < 16; i++) {
-            free(pl->names[i]);
-        }
-        free(pl->names);
-    }
-    free(pl->scores);
-    free(pl);
-}
-
-
-void ln() { printf("\n"); }
 
 void idt(size_t n) { for(size_t i = 0; i < n; ++i) printf("    "); }
 
@@ -92,38 +44,23 @@ void quit() {
     usleep(250000);
 }
 
-void update_player_list(player_list* pl, char* n, signed short s) {
-    if (!pl || !n) return;
-    if (pl->index >= 16) return;
-    signed short i = pl->index++;
-    strncpy(pl->names[i], n, 15);
-    pl->names[i][15] = '\0';
-    pl->scores[i] = s;
-}
 
 void add(tree* lb, player_list* pl) {
     ln();
     printf("Insert player name: ");
     char name[16];
     scanf("%15s", &name);
-    ln();
     printf("Insert player score: ");
     signed short score;
     scanf("%hd", &score);
     insert(lb, name, score); 
     printf("Added to RBT...\n");        // DBG
-    update_player_list(pl, name, score);   
+    add_to_player_list(pl, name, score);   
     printf("Added to pl...\n");         // DBG
     ln(); printf("Player added successfully!\n");
     ln();
 }
 
-
-signed short find_player(player_list* pl, char* name) {
-    for(signed short i = 0; i < pl->index && i < 16; i++)
-        if(!strcmp(name, pl->names[i])) return i;
-    return -1;
-}
 
 void update(tree* lb, player_list* pl) {
     ln();
@@ -140,14 +77,53 @@ void update(tree* lb, player_list* pl) {
     signed short new_score = player_score + delta;
     delete(lb, search(*lb, player_score));
     insert(lb, player_name, new_score);
+    printf("Updated RBT...\n");        // DBG
+    update_score_player_list(pl, player_name, new_score);
+    printf("Updated pl...\n");         // DBG
     ln(); printf("Score update successful!\n");
     ln();
+}
+
+
+void _remove(tree* lb, player_list* pl) {
+    ln();
+    printf("Insert player name: ");
+    char name[16];
+    scanf("%15s", &name);
+    signed short player_index = find_player(pl, name);
+    if(player_index == -1) { printf("Player not found!\n"); ln(); return; }
+    char* player_name = pl->names[player_index];
+    signed short player_score = pl->scores[player_index];
+    delete(lb, search(*lb, player_score));
+    printf("Updated RBT...\n");        // DBG
+    remove_name_player_list(pl, player_name);
+    printf("Update pl...\n");          // DBG
+    ln(); ln();
+}
+
+
+void top_k(tree* lb, player_list* pl) {
+    ln();
+    printf("Insert k: ");
+    signed short k;
+    scanf("%hd", &k);
+    if (k <= 0) return;
+    node* max_score = max(lb->rt);
+    for (size_t i = 0; i < k; i++) {
+        printf("%s ::: %d", max_score->nam, max_score->key);
+        max_score = successor(max_score);
+    }
+    ln(); ln();
 }
 
 
 int main() {
     tree* leaderboard = create_tree(NULL);
     player_list* player_list = create_player_list();
+                // insert(leaderboard, "John", 120);
+                // add_to_player_list(player_list, "John", 120);
+                // insert(leaderboard, "Doe", 100);
+                // add_player_list(player_list, "Doe", 100);
     menu();
     while (true) {
         short option = 1;
@@ -160,8 +136,13 @@ int main() {
                 update(leaderboard, player_list);
                 break;
             } case 3: {
+                _remove(leaderboard, player_list);
                 break;
             } case 4: {
+                top_k(leaderboard, player_list);
+                break;
+            } case 1337: {
+                print_player_list(player_list);
                 break;
             } default: {
                 quit();

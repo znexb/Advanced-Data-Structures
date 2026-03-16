@@ -4,6 +4,7 @@
 
 typedef struct node {
     signed short key;   // Short determines low capacity. Range of signed short is [0, 65535].
+    char* nam;
     struct node *lft;   // Pointer to the left child.
     struct node *rgt;   // Pointer to the right child.
     struct node *pnt;
@@ -49,6 +50,9 @@ bool is_tree_null (tree t);
 node* search_node (node* n, signed short key);
 
 node* search (tree t, signed short key);
+
+
+node* max (node *n);
 
 
 #endif

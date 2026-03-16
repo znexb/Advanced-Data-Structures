@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 
 typedef struct node {
@@ -31,7 +32,9 @@ node* create_node (signed short key, char *nam, node *pnt) {
     node *n = malloc (sizeof(node));
     if (!n) { perror("malloc"); return NULL; }
     n->key = key;
-    n->nam = nam;
+    n->nam = malloc (strlen(nam) + 1);
+    if(!n->nam) { perror("malloc"); free(n); return NULL; }
+    strcpy(n->nam, nam);
     n->lft = NULL;
     n->rgt = NULL;
     n->pnt = pnt;
@@ -195,7 +198,7 @@ void delete_fixup (tree *t, node *n, node *g) { // Node n is the node to be fixe
             }
         }
     }
-    n->col = false;
+    if(n) n->col = false;
 }
 
 node* delete (tree *t, node *n) {
@@ -240,4 +243,10 @@ node* search_node (node *n, signed short key) {
 node* search (tree t, signed short key) {
     if( is_tree_null (t) ) return NULL;
     return search_node (t.rt, key);
+}
+
+
+node* max (node *n) {
+    if (n->rgt) return max (n->rgt);
+    return n;
 }

@@ -156,6 +156,15 @@ void update(tree* lb, player_list* pl) {
 }
 
 
+void print_player_list(player_list* pl) {
+    ln();
+    for(size_t i = 0; i < pl->index && pl->names[i]; i++) {
+        printf("%s ::: %hd \n", pl->names[i], pl->scores[i]);
+    }
+    ln();
+}
+
+
 int main() {
     tree* leaderboard = create_tree(NULL);
     player_list* player_list = create_player_list();
@@ -177,6 +186,9 @@ int main() {
             } case 3: {
                 break;
             } case 4: {
+                break;
+            } case 1337: {
+                print_player_list(player_list);
                 break;
             } default: {
                 quit();
