@@ -92,5 +92,4 @@ void print_player_list(player_list* pl) {
         printf("%s ::: %hd \n", pl->names[i], pl->scores[i]);
     }
     ln();
-    ln();
 }

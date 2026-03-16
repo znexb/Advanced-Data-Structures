@@ -1,5 +1,5 @@
-#ifndef BST_H
-#define BST_H
+#ifndef METHODS_H
+#define METHODS_H
 
 
 typedef struct node {
@@ -15,20 +15,14 @@ typedef struct tree {
     struct node *rt;
 } tree;
 
-
-tree* create_tree (node *rt);
-
-
-void insert (tree *t, char *name, signed short key);
-
-node* delete (tree* t, node *n);
-
-node* search (tree t, signed short key);
+typedef struct player_list {
+    signed short index;
+    char **names;
+    signed short *scores;
+} player_list;
 
 
-node* max (node* n);
-
-node* predecessor (node* n);
+void add (tree* lb, player_list* pl);
 
 
 #endif

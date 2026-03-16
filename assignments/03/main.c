@@ -6,6 +6,7 @@
 
 #include "RBT.h"
 #include "player_list.h"
+#include "methods.h"
 
 
 void idt(size_t n) { for(size_t i = 0; i < n; ++i) printf("    "); }
@@ -44,22 +45,9 @@ void quit() {
     usleep(250000);
 }
 
+void print_status(char* msg) { ln(); printf("%s\n", msg); ln(); }
 
-void add(tree* lb, player_list* pl) {
-    ln();
-    printf("Insert player name: ");
-    char name[16];
-    scanf("%15s", &name);
-    printf("Insert player score: ");
-    signed short score;
-    scanf("%hd", &score);
-    insert(lb, name, score); 
-    printf("Added to RBT...\n");        // DBG
-    add_to_player_list(pl, name, score);   
-    printf("Added to pl...\n");         // DBG
-    ln(); printf("Player added successfully!\n");
-    ln();
-}
+void print_status_pnf() { print_status("Player not found!"); }
 
 
 void update(tree* lb, player_list* pl) {
@@ -68,7 +56,7 @@ void update(tree* lb, player_list* pl) {
     char name[16];
     scanf("%15s", &name);
     signed short player_index = find_player(pl, name);
-    if(player_index == -1) { printf("Player not found!\n"); ln(); return; }
+    if(player_index == -1) { print_status_pnf(); return; }
     char* player_name = pl->names[player_index];
     signed short player_score = pl->scores[player_index];
     printf("Insert delta: ");
@@ -80,8 +68,8 @@ void update(tree* lb, player_list* pl) {
     printf("Updated RBT...\n");        // DBG
     update_score_player_list(pl, player_name, new_score);
     printf("Updated pl...\n");         // DBG
-    ln(); printf("Score update successful!\n");
-    ln();
+    
+    print_status("Score update successful!");
 }
 
 
@@ -91,14 +79,15 @@ void _remove(tree* lb, player_list* pl) {
     char name[16];
     scanf("%15s", &name);
     signed short player_index = find_player(pl, name);
-    if(player_index == -1) { printf("Player not found!\n"); ln(); return; }
+    if(player_index == -1) { print_status_pnf(); return; }
     char* player_name = pl->names[player_index];
     signed short player_score = pl->scores[player_index];
     delete(lb, search(*lb, player_score));
     printf("Updated RBT...\n");        // DBG
     remove_name_player_list(pl, player_name);
     printf("Update pl...\n");          // DBG
-    ln(); ln();
+    
+    print_status("Player removed successfully!");
 }
 
 
@@ -110,20 +99,26 @@ void top_k(tree* lb, player_list* pl) {
     if (k <= 0) return;
     node* max_score = max(lb->rt);
     for (size_t i = 0; i < k; i++) {
-        printf("%s ::: %d", max_score->nam, max_score->key);
-        max_score = successor(max_score);
+        printf("%s ::: %d\n", max_score->nam, max_score->key);
+        max_score = predecessor(max_score);
     }
     ln(); ln();
 }
 
 
+void debug_sample(tree* leaderboard, player_list* player_list) {
+    insert(leaderboard, "John", 120);
+    add_to_player_list(player_list, "John", 120);
+    insert(leaderboard, "Doe", 100);
+    add_to_player_list(player_list, "Doe", 100);
+    insert(leaderboard, "Costi", 200);
+    add_to_player_list(player_list, "Costi", 200);
+}
+
 int main() {
     tree* leaderboard = create_tree(NULL);
     player_list* player_list = create_player_list();
-                // insert(leaderboard, "John", 120);
-                // add_to_player_list(player_list, "John", 120);
-                // insert(leaderboard, "Doe", 100);
-                // add_player_list(player_list, "Doe", 100);
+    debug_sample(leaderboard, player_list);
     menu();
     while (true) {
         short option = 1;

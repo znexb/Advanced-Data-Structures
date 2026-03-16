@@ -50,7 +50,7 @@ void insert_node(node* p, bool dir, node *c, node *n) {
         n->pnt = p;
         return;
     }
-    if (key_sm (c->key, n->key)) insert_node(c, false, c->lft, n);
+    if (key_sm (n->key, c->key)) insert_node(c, false, c->lft, n);
     else                         insert_node(c, true , c->rgt, n);
 }
 
@@ -122,7 +122,7 @@ void insert (tree *t, char* nam, signed short key) {
     node *n = create_node (key, nam, NULL);
     if (!t->rt) t->rt = n;
     else       insert_node (NULL, true, t->rt, n);
-    insert_fixup (t, n); // TBD
+    insert_fixup (t, n);
 }
 
 
@@ -246,7 +246,14 @@ node* search (tree t, signed short key) {
 }
 
 
-node* max (node *n) {
+node* max (node* n) {
     if (n->rgt) return max (n->rgt);
     return n;
+}
+
+node* predecessor (node* n) {
+    if (n->lft) return max (n->lft);
+    node* p = n->pnt;
+    while(p && n == p->lft) { n = p; p = p->pnt; }
+    return p;
 }
