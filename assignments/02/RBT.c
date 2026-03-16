@@ -84,6 +84,7 @@ node* create_node (signed short key, node *pnt) {
     n->rgt = NULL;
     n->pnt = pnt;
     n->col = true; // Red by default makes it insert friendly
+    return n;
 }
 
 void node_exists () { printf ("Node already exists!\n"); }

@@ -92,7 +92,7 @@ void quit() {
     usleep(250000);
 }
 
-void update_player_list(player_list* pl, char* n, signed short s) {
+void add_player_list(player_list* pl, char* n, signed short s) {
     if (!pl || !n) return;
     if (pl->index >= 16) return;
     signed short i = pl->index++;
@@ -112,7 +112,7 @@ void add(tree* lb, player_list* pl) {
     scanf("%hd", &score);
     insert(lb, name, score); 
     printf("Added to RBT...\n");        // DBG
-    update_player_list(pl, name, score);   
+    add_player_list(pl, name, score);   
     printf("Added to pl...\n");         // DBG
     ln(); printf("Player added successfully!\n");
     ln();
@@ -120,9 +120,17 @@ void add(tree* lb, player_list* pl) {
 
 
 signed short find_player(player_list* pl, char* name) {
-    for(signed short i = 0; i < pl->index && i < 16; i++)
-        if(!strcmp(name, pl->names[i])) return i;
+    for (signed short i = 0; i < pl->index && i < 16; i++)
+        if (!strcmp(name, pl->names[i])) return i;
     return -1;
+}
+
+void update_player_list(player_list *pl, char* n, signed short s) {
+    if (!pl || !n) return;
+    if (pl->index >= 16) return;
+    signed short i = find_player(pl, n);
+    if(i == -1) return;
+    pl->scores[i] = s;
 }
 
 void update(tree* lb, player_list* pl) {
@@ -140,6 +148,9 @@ void update(tree* lb, player_list* pl) {
     signed short new_score = player_score + delta;
     delete(lb, search(*lb, player_score));
     insert(lb, player_name, new_score);
+    printf("Updated RBT...\n");        // DBG
+    update_player_list(pl, player_name, new_score);
+    printf("Updated pl...\n");         // DBG
     ln(); printf("Score update successful!\n");
     ln();
 }
@@ -148,6 +159,10 @@ void update(tree* lb, player_list* pl) {
 int main() {
     tree* leaderboard = create_tree(NULL);
     player_list* player_list = create_player_list();
+                insert(leaderboard, "John", 120);
+                add_player_list(player_list, "John", 120);
+                insert(leaderboard, "Doe", 100);
+                add_player_list(player_list, "Doe", 100);
     menu();
     while (true) {
         short option = 1;

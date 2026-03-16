@@ -33,9 +33,22 @@ void insert_fixup (tree *t, node *n);
 void insert (tree *t, char *name, signed short key);
 
 
-node* search_node (node *n, char* name);
+node* min (node* n);
 
-node* search (tree t, char* name);
+node* successor (node* n);
+
+void delete_fixup (tree* t, node* n, node* g);
+
+node* delete (tree *t, node *n);
+
+
+bool search_found (node* n, signed short key);
+
+bool is_tree_null (tree t);
+
+node* search_node (node* n, signed short key);
+
+node* search (tree t, signed short key);
 
 
 #endif
