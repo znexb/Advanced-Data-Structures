@@ -9,6 +9,7 @@
 int main() {
     tree* t = create_tree(NULL);
     unsigned short frq[256] = {0};
+    unsigned short medians[16] = {0};
     while (true) {
         char line[256];
         fgets(line, sizeof(line), stdin);
@@ -18,6 +19,9 @@ int main() {
         char** tokens = split(line, " ", &count);
 
         if (!strcmp(tokens[0], "END")) {
+            size_t i = 0;
+            while (medians[i]) { printf("%hu\n", medians[i]); i++; }
+
             return 0;
         } else if (!strcmp(tokens[0], "ADD")) {
             signed short value;
@@ -37,17 +41,31 @@ int main() {
                 frq[value]--;
             } else   frq[value]--;
         } else if (!strcmp(tokens[0], "MEDIAN")) {
-            node* nodes = malloc(1 * sizeof(node));
-            size_t size = 1;
+            node* nodes;
+            size_t size;
             parse_tree(*t, &nodes, &size);
 
+            if (size == 0) {
+                printf("0\n");
+                free(nodes);
+                continue;
+            }
+
             unsigned short sum = 0;
+            unsigned short tmp[256];
+            memcpy(tmp, frq, 256 * sizeof(unsigned short));
             for (size_t i = 0; i < size; i++)
-                while (frq[nodes[i].key]) {
+                while (tmp[nodes[i].key]) {
                     sum += nodes[i].key;
-                    frq[nodes[i].key]--;
+                    tmp[nodes[i].key]--;
                 }
-            printf("%hd\n", sum / size - 1);
+
+            size_t i = 0;
+            while(medians[i]) i++;
+            if (i > 15) { printf("Median list full. Please use END to output!\n"); continue; }
+            medians[i] = sum / size;
+
+            free(nodes);
         }
     }
 }

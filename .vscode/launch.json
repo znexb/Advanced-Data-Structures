@@ -5,7 +5,7 @@
             "name": "Debug main.exe",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/assignments/03/debug.exe",
+            "program": "${workspaceFolder}/assignments/03/median/debug.exe",
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
 

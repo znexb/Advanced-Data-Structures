@@ -238,16 +238,23 @@ node* search (tree t, signed short key) {
 
 
 void parse_node (node *n, node **nodes, size_t *size) {
-    if(n) { 
-        (*nodes) [*size - 1] = *n; 
-        ++*size; 
-        *nodes = realloc (*nodes, *size * sizeof (node));
-    }
-    if(n->lft) parse_node (n->lft, nodes, size);
-    if(n->rgt) parse_node (n->rgt, nodes, size);
+    if (!n) return;
+
+    node* tmp = realloc (*nodes, (*size + 1) * sizeof (node));
+    if (!tmp) { perror("realloc"); return; }
+
+    *nodes = tmp;
+    (*nodes)[*size] = *n; 
+    (*size)++; 
+
+    parse_node(n->lft, nodes, size);
+    parse_node(n->rgt, nodes, size);
 }
 
 void parse_tree (tree t, node **nodes, size_t *size) {
-    if (!t.rt) { size = 0; return; }
-    parse_node (t.rt, nodes, size);
+    *nodes = NULL;
+    *size = 0;
+
+    if (!t.rt) return;
+    parse_node(t.rt, nodes, size);
 }
