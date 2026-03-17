@@ -230,7 +230,7 @@ node* search_node (node *n, signed short key) {
     if (search_found (n, key) ) return n;
     else {
         signed short cur = n->key;
-        if( key_sm (cur, key) ) {
+        if( key_sm (key, cur) ) {
             if (n->lft) return search_node (n->lft, key);
             else        return NULL;
         } else { // Implied else is key >= cur. The case key == cur can never occur because of the search_found check. Thus, we are left with key > cur.

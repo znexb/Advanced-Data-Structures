@@ -45,66 +45,6 @@ void quit() {
     usleep(250000);
 }
 
-void print_status(char* msg) { ln(); printf("%s\n", msg); ln(); }
-
-void print_status_pnf() { print_status("Player not found!"); }
-
-
-void update(tree* lb, player_list* pl) {
-    ln();
-    printf("Insert player name: ");
-    char name[16];
-    scanf("%15s", &name);
-    signed short player_index = find_player(pl, name);
-    if(player_index == -1) { print_status_pnf(); return; }
-    char* player_name = pl->names[player_index];
-    signed short player_score = pl->scores[player_index];
-    printf("Insert delta: ");
-    signed short delta;
-    scanf("%hd", &delta);
-    signed short new_score = player_score + delta;
-    delete(lb, search(*lb, player_score));
-    insert(lb, player_name, new_score);
-    printf("Updated RBT...\n");        // DBG
-    update_score_player_list(pl, player_name, new_score);
-    printf("Updated pl...\n");         // DBG
-    
-    print_status("Score update successful!");
-}
-
-
-void _remove(tree* lb, player_list* pl) {
-    ln();
-    printf("Insert player name: ");
-    char name[16];
-    scanf("%15s", &name);
-    signed short player_index = find_player(pl, name);
-    if(player_index == -1) { print_status_pnf(); return; }
-    char* player_name = pl->names[player_index];
-    signed short player_score = pl->scores[player_index];
-    delete(lb, search(*lb, player_score));
-    printf("Updated RBT...\n");        // DBG
-    remove_name_player_list(pl, player_name);
-    printf("Update pl...\n");          // DBG
-    
-    print_status("Player removed successfully!");
-}
-
-
-void top_k(tree* lb, player_list* pl) {
-    ln();
-    printf("Insert k: ");
-    signed short k;
-    scanf("%hd", &k);
-    if (k <= 0) return;
-    node* max_score = max(lb->rt);
-    for (size_t i = 0; i < k; i++) {
-        printf("%s ::: %d\n", max_score->nam, max_score->key);
-        max_score = predecessor(max_score);
-    }
-    ln(); ln();
-}
-
 
 void debug_sample(tree* leaderboard, player_list* player_list) {
     insert(leaderboard, "John", 120);
@@ -114,6 +54,7 @@ void debug_sample(tree* leaderboard, player_list* player_list) {
     insert(leaderboard, "Costi", 200);
     add_to_player_list(player_list, "Costi", 200);
 }
+
 
 int main() {
     tree* leaderboard = create_tree(NULL);

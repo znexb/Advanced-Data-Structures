@@ -87,7 +87,7 @@ void ln() { printf("\n"); }
 
 void print_player_list(player_list* pl) {
     ln();
-    if (pl->index == 0) { printf("Empty set!\n"); return; }
+    if (pl->index == 0) { printf("Empty set!\n"); ln(); return; }
     for (size_t i = 0; i < pl->index && pl->names[i]; i++) {
         printf("%s ::: %hd \n", pl->names[i], pl->scores[i]);
     }
