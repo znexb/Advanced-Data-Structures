@@ -47,14 +47,6 @@ void add(tree* lb, player_list* pl) {
 }
 
 
-int get_index(player_list* pl, char* name, char** p_name, signed short *p_score) {
-    signed short index = find_player(pl, name);
-    if(index == -1) { print_status_pnf(); return -1; }
-    *p_name = pl->names[index];
-    *p_score = pl->scores[index];
-    return 0;
-} 
-
 signed short get_delta(signed short p_score) {
     signed short delta = get_score();
     return delta + p_score;
@@ -79,7 +71,7 @@ void update(tree* lb, player_list* pl) {
     
     char* player_name;
     signed short player_score;
-    if(get_index(pl, name, &player_name, &player_score)) return;
+    if(get_index(pl, name, &player_name, &player_score, print_status_pnf)) { print_status("Player not found in player list!"); return; }
 
     printf("Insert delta: ");
     signed short new_score = get_delta(player_score);
@@ -108,7 +100,7 @@ void _remove(tree* lb, player_list* pl) {
 
     char* player_name;
     signed short player_score;
-    if(get_index(pl, name, &player_name, &player_score)) return;
+    if(get_index(pl, name, &player_name, &player_score, print_status_pnf)) return;
 
     if(_remove_operations(lb, pl, player_name, player_score)) return;
     

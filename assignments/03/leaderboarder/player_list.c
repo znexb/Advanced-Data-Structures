@@ -20,7 +20,7 @@ player_list* create_player_list() {
         pl->names[i] = malloc(16 * sizeof(char));
         if (!pl->names[i]) { 
             perror("malloc"); 
-            for(int j = 0; j < 16; j++) free(pl->names[j]);
+            for (int j = 0; j < 16; j++) free(pl->names[j]);
             free(pl->names);
             free(pl);
             return NULL; 
@@ -35,8 +35,7 @@ player_list* create_player_list() {
         return NULL; 
     }
     return pl;
-}
-// Honestly, I do not know why I bothered with manual malloc for each element. I guess I like pointless hard work. *POINTERless* work especially, haha
+} // Honestly, I do not know why I bothered with manual malloc for each element. I guess I like pointless hard work. *POINTERless* work especially, haha
 
 void free_player_list(player_list* pl) {
     if (!pl) return;
@@ -49,6 +48,27 @@ void free_player_list(player_list* pl) {
     free(pl->scores);
     free(pl);
 }
+
+player_list** create_player_list_list() {
+    player_list** pll = malloc (16 * sizeof(player_list*));
+    if (!pll) { perror("malloc"); return NULL; }
+    for (int i = 0; i < 16; i++) {
+        pll[i] = create_player_list();
+        if (!pll[i]) {
+            perror("malloc");
+            for (int j = 0; j < 16; j++) free(pll[j]);
+            free(pll);
+            return NULL;
+        }
+    }
+    return pll;
+} // For the record: Yes, I do like mental anguish.
+
+void free_player_list_list(player_list** pll) {
+    for(int i = 0; i < 16; i++) free_player_list(pll[i]);
+    free(pll);
+}
+
 
 void add_to_player_list(player_list* pl, char* n, signed short s) {
     if (!pl || !n) return;
@@ -64,6 +84,14 @@ signed short find_player(player_list* pl, char* n) {
         if (!strcmp(n, pl->names[i])) return i;
     return -1;
 }
+
+int get_index(player_list* pl, char* name, char** p_name, signed short *p_score, void (*print_status_pnf)(void)) {
+    signed short index = find_player(pl, name);
+    if(index == -1) { print_status_pnf(); return -1; }
+    *p_name = pl->names[index];
+    *p_score = pl->scores[index];
+    return 0;
+} 
 
 void update_score_player_list(player_list *pl, char* n, signed short s) {
     if (!pl || !n) return;
@@ -89,7 +117,7 @@ void print_player_list(player_list* pl) {
     ln();
     if (pl->index == 0) { printf("Empty set!\n"); ln(); return; }
     for (size_t i = 0; i < pl->index && pl->names[i]; i++) {
-        printf("%s ::: %hd \n", pl->names[i], pl->scores[i]);
+        printf("%s %hd \n", pl->names[i], pl->scores[i]);
     }
     ln();
 }

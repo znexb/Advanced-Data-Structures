@@ -1,5 +1,5 @@
-#ifndef METHODS_H
-#define METHODS_H
+#ifndef RUNTIME_METHODS_H
+#define RUNTIME_METHODS_H
 
 
 void add (tree* lb, player_list* pl);
