@@ -80,15 +80,30 @@ node* search_node(node* node, const signed short key) {
         else                    ++pos;
     }
 
+    if (node->is_leaf) return NULL;
+
     if (!node->children)            return NULL;
     else if (!node->children[pos])  return NULL;
     else                            return search_node(node->children[pos], key);
 }
 
-node* search(tree tree, const signed short key) {
+node* search(tree tree, const signed short key, node* sub_function(node*, const signed short)) {
     if (!tree.root) { printf("tree_null error"); return NULL; }
 
-    return search_node(tree.root, key);
+    return sub_function(tree.root, key);
+}
+
+
+node* find_insertion_leaf(node* node, const signed short key) {
+    if (!node) return NULL;
+
+    signed short* it = node->keys;
+    size_t pos = 0;
+    for (; it < node->keys + node->key_count; it++) {
+        if      (key < *it)     break;
+        else if (key == *it)    return NULL;
+        else                    ++pos;  
+    }
 }
 
 
