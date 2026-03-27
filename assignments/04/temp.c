@@ -1,44 +1,20 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+node* find_insertion_leaf(node* curr, signed short key, size_t* pos) {
+    if (!curr) return NULL;
 
-typedef struct node {
-    signed short* keys;
-    struct node** children;
-    struct node* parent;
-} node;
-
-typedef struct tree {
-    struct node* root;
-} tree;
-
-node* create_node(const signed short* keys, size_t key_count, node* parent) {
-    node* new_node = malloc(sizeof(*new_node));
-    if (!new_node) {
-        perror("malloc");
-        return NULL;
+    *pos = 0;
+    while (*pos < curr->key_count) {
+        if (key < curr->keys[*pos]) {
+            break;
+        }
+        if (key == curr->keys[*pos]) {
+            return NULL; // duplicate key
+        }
+        ++(*pos);
     }
 
-    new_node->keys = NULL;
-    new_node->children = NULL;
-    new_node->parent = parent;
-
-    if (key_count > 0) {
-        new_node->keys = malloc(key_count * sizeof(*new_node->keys));
-        if (!new_node->keys) {
-            perror("malloc");
-            free(new_node);
-            return NULL;
-        }
-
-        for (size_t i = 0; i < key_count; i++) {
-            new_node->keys[i] = keys[i];
-        }
-
-        /* alternatively:
-           memcpy(new_node->keys, keys, key_count * sizeof(*keys));
-        */
+    if (curr->is_leaf) {
+        return curr;
     }
 
-    return new_node;
+    return find_insertion_leaf(curr->children[*pos], key, pos);
 }
