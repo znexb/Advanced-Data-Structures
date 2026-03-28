@@ -56,6 +56,21 @@ node* create_node(const signed short* keys, size_t key_count, node* const* child
     return new_node;
 }
 
+node* create_empty_node(size_t max_children_count, bool is_leaf, node* parent) {
+    node* new_node = malloc(sizeof(*new_node));
+    if (!new_node) { perror("malloc"); return NULL; }
+
+    new_node->keys = malloc((max_children_count - 1) * sizeof(signed short));
+    new_node->children = is_leaf ? NULL : malloc(max_children_count * sizeof(node*));
+
+    new_node->key_count = 0;
+    new_node->max_children_count = max_children_count;
+    new_node->parent = parent;
+    new_node->is_leaf = is_leaf;
+
+    return new_node;
+}
+
 void free_node(node* node) { free(node->children); free(node->keys); free(node); }
 
 
@@ -68,6 +83,8 @@ tree* create_tree(node* node) {
 
 // free(tree); No need for free function lol
 
+
+void tree_null_err() { printf("tree_null error"); }
 
 node* search_node(node* node, const signed short key) {
     if (!node) return NULL;
@@ -88,25 +105,111 @@ node* search_node(node* node, const signed short key) {
 }
 
 node* search(tree tree, const signed short key) {
-    if (!tree.root) { printf("tree_null error"); return NULL; }
+    if (!tree.root) { tree_null_err(); return NULL; }
 
     return search_node(tree.root, key);
 }
 
 
-node* find_insertion_leaf(node* node, const signed short key, size_t* pos) {
-    if (!node) return NULL;
+node* find_insertion_leaf(node* current, const signed short key, size_t* pos, node** parent) {
+    if (!current) return NULL;
 
     *pos = 0;
-    while (*pos < node->key_count) {
-        if (key < node->keys[*pos]) break;
-        if (key == node->keys[*pos]) return NULL;
+    while (*pos < current->key_count) {
+        if (key < current->keys[*pos]) break;
+        if (key == current->keys[*pos]) return NULL;
         ++(*pos);
     }
 
-    if (node->is_leaf) return node;
+    if (current->is_leaf) return current;
 
-    return find_insertion_leaf(node->children[*pos], key, pos);
+    *parent = current;
+    return find_insertion_leaf(current->children[*pos], key, pos, parent);
+}
+
+void reorder_keys(node* leaf, size_t pos) {
+    for (size_t i = leaf->key_count; i > pos; --i) {
+        leaf->keys[i] = leaf->keys[i - 1];
+    }
+    leaf->key_count++;
+}
+
+signed short* load_keys(node* leaf, const signed short key, signed short* out) {
+    size_t i = 0, j = 0;
+    while (i < leaf->key_count && leaf->keys[i] < key) out[j++] = leaf->keys[i++];
+    out[j++] = key;
+    while (i < leaf->key_count) out[j++] = leaf->keys[i++];
+}
+
+void insert_into_parent(node* parent, node* left, node* right, signed short mid_key) {
+    size_t pos = 0;
+
+    while (pos < parent->key_count && parent->children[pos] != left) pos++;
+
+    for (size_t i = parent->key_count; i > pos; --i) parent->keys[i] = parent->keys[i - 1];
+
+    for (size_t i = parent->key_count + 1; i > pos + 1; --i) parent->children[i] = parent->children[i - 1];
+
+    parent->keys[pos] = mid_key;
+    parent->children[pos + 1] = right;
+    right->parent = parent;
+
+    parent->key_count++;
+}
+
+void split_leaf(tree* tree, node* leaf, signed short key) {
+    size_t max_keys = leaf->max_children_count - 1;
+    signed short* temp = malloc((max_keys + 1) * sizeof(signed short));
+
+    load_keys(leaf, key, temp);
+    
+    size_t mid = (max_keys + 1) / 2;
+
+    node* sibling = create_empty_node(leaf->max_children_count, true, leaf->parent);
+
+    leaf->key_count = 0;
+    for (size_t i = 0; i < mid; i++) {
+        leaf->keys[i] = temp[i];
+        leaf->key_count++;
+    }
+
+    for(size_t i = mid; i < max_keys + 1; i++) {
+        sibling->keys[sibling->key_count++] = temp[i];
+    }
+
+    signed short promoted = sibling->keys[0];
+
+    if (!leaf->parent) {
+        node* new_root = create_empty_node(leaf->max_children_count, false, NULL);
+
+        new_root->keys[0] = promoted;
+        new_root->key_count = 1;
+        new_root->children[0] = leaf;
+        new_root->children[1] = sibling;
+
+        leaf->parent = new_root;
+        sibling->parent = new_root;
+        tree->root = new_root;
+    } else {
+        node* parent = leaf->parent;
+        insert_into_parent(parent, leaf, sibling, promoted);
+    }
+
+    free(temp);
+}
+
+void insert(tree* tree, const signed short key) {
+    if (!tree->root) { tree_null_err(); return; }
+
+    size_t pos = 0;
+    node* parent = NULL;
+    node* leaf = find_insertion_leaf(tree->root, key, &pos, &parent);
+    if (leaf->key_count < leaf->max_children_count - 1) {
+        reorder_keys(leaf, pos);
+        leaf->keys[pos] = key;
+    } else {
+
+    }
 }
 
 
