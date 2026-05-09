@@ -1,0 +1,27 @@
+# Dependencies
+project/ads-compendium/node_modules/
+
+# Build output
+project/ads-compendium/dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Environment
+project/ads-compendium/.env
+project/ads-compendium/.env.local
+project/ads-compendium/.env.*.local
+
+# TypeScript cache
+project/ads-compendium/tsconfig.tsbuildinfo
