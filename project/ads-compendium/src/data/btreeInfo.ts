@@ -1,0 +1,52 @@
+import type { StructureInfo } from '../types';
+
+export const btreeInfo: StructureInfo = {
+  title: 'B-Tree',
+  subtitle: 'A balanced multi-way tree for disk-based storage',
+  badge: 'O(log n) disk I/O',
+  notes: [
+    'A B-Tree of minimum degree t has every node (except root) holding between t−1 and 2t−1 keys.',
+    'All leaves are at the same depth — the tree grows from the root upward via splits.',
+    'Node splits propagate upward only when a node overflows, keeping the tree perfectly balanced.',
+    'Designed to minimize disk reads: large nodes fill entire disk pages, reducing I/O to O(log_t n).',
+    'B+ Trees (used in most databases) store all values at leaves for efficient range scans.',
+  ],
+  useCases: [
+    'Filesystem indexes: NTFS, ext4, HFS+, APFS all use B-Tree variants',
+    'Database indexes in MySQL (InnoDB), PostgreSQL, SQLite, Oracle',
+    'Key-value stores: RocksDB, LevelDB use LSM-trees, which merge into B-Trees',
+    'Any system where data lives on secondary storage (HDD/SSD)',
+  ],
+  funFacts: [
+    'Invented by Rudolf Bayer and Edward McCreight at Boeing in 1970 — the "B" may stand for Bayer, Boeing, or Balanced.',
+    'A B-Tree with t=2 is called a 2-3-4 tree; t=1 degenerates to a sorted linked list.',
+    'A B-Tree of order m can hold O(m^h) records for height h — exponentially more per level than a binary tree.',
+    'Modern SSDs make B-Tree design tricky: random I/O is cheap, but write amplification from splits is not.',
+  ],
+  complexity: [
+    { operation: 'Search', average: 'O(log n)', worst: 'O(log n)' },
+    { operation: 'Insert', average: 'O(log n)', worst: 'O(log n)' },
+    { operation: 'Delete', average: 'O(log n)', worst: 'O(log n)' },
+    { operation: 'Disk I/O', average: 'O(log_t n)', worst: 'O(log_t n)' },
+    { operation: 'Space', average: 'O(n)', worst: 'O(n)' },
+  ],
+  codeLines: [
+    'class BTreeNode {',
+    '  keys:     number[]    = [];',
+    '  children: BTreeNode[] = [];',
+    '  leaf:     boolean     = true;',
+    '}',
+    '',
+    'function splitChild(parent: BTreeNode, i: number, t: number) {',
+    '  const y = parent.children[i];  // full child',
+    '  const z = new BTreeNode();     // new sibling',
+    '  z.keys = y.keys.splice(t - 1); // right half',
+    '  const mid = z.keys.shift()!;   // median → parent',
+    '  if (!y.leaf) z.children = y.children.splice(t);',
+    '  parent.keys.splice(i, 0, mid);',
+    '  parent.children.splice(i + 1, 0, z);',
+    '}',
+  ],
+  githubUrl: 'https://github.com/Q-UW9/Advanced-Data-Structures/tree/master/assignments/04',
+  repoDirUrl: 'https://api.github.com/repos/Q-UW9/Advanced-Data-Structures/contents/assignments/04',
+};

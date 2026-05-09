@@ -25,3 +25,6 @@ project/ads-compendium/.env.*.local
 
 # TypeScript cache
 project/ads-compendium/tsconfig.tsbuildinfo
+
+# Agent
+project/.claude
